@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"time"
 	"unicode"
@@ -20,13 +21,11 @@ var dictionary = []string{
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
+	// ### STATE ###
 	targetWord := getRandomWord()
-	targetWord = "United States of America" // for testing
-	guessedLetters := initializeGuessedWords(targetWord)
-	printGameState(targetWord, guessedLetters)
-
-	guessedLetters['e'] = true
-	printGameState(targetWord, guessedLetters)
+	guessedLetters := initializeGuessedLetters(targetWord)
+	hangmanState := 6
+	printGameState(targetWord, guessedLetters, hangmanState)
 
 	// Printing game state
 	//	* Print word you're guessing
@@ -42,7 +41,7 @@ func main() {
 	// If hangman is complete -> game over, you lose
 }
 
-func initializeGuessedWords(targetWord string) map[rune]bool {
+func initializeGuessedLetters(targetWord string) map[rune]bool {
 	guessedLetters := map[rune]bool{}
 	guessedLetters[unicode.ToLower(rune(targetWord[0]))] = true
 	guessedLetters[unicode.ToLower(rune(targetWord[len(targetWord)-1]))] = true
@@ -54,18 +53,38 @@ func getRandomWord() string {
 	return dictionary[rand.Intn(len(dictionary))]
 }
 
-func printGameState(targetWord string, guessedLetters map[rune]bool) {
+func printGameState(
+	targetWord string,
+	guessedLetters map[rune]bool,
+	hangmanState int,
+) {
+	fmt.Println(getWordGuessingProgress(targetWord, guessedLetters))
+	fmt.Println()
+	fmt.Println(getHangmanDrawing(hangmanState))
+}
+
+func getWordGuessingProgress(targetWord string, guessedLetters map[rune]bool) string {
+	result := ""
 	for _, ch := range targetWord {
 		if ch == ' ' {
-			fmt.Print(" ")
+			result += " "
 		} else if guessedLetters[unicode.ToLower(ch)] == true {
-			fmt.Printf("%c", ch)
+			result += fmt.Sprintf("%c", ch)
 		} else {
-			fmt.Print("_")
+			result += "_"
 		}
 
-		fmt.Print(" ")
+		result += " "
 	}
 
-	fmt.Println()
+	return result
+}
+
+func getHangmanDrawing(hangmanState int) string {
+	data, err := ioutil.ReadFile(fmt.Sprintf("./states/hangman%d", hangmanState))
+	if err != nil {
+		panic(err)
+	}
+
+	return string(data)
 }
