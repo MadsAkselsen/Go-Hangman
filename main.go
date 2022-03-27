@@ -29,16 +29,30 @@ func main() {
 	// ### STATE ###
 	targetWord := getRandomWord()
 	guessedLetters := initializeGuessedLetters(targetWord)
-	hangmanState := 6
+	hangmanState := 0
+	printGameState(targetWord, guessedLetters, hangmanState)
 	
 	for {
-		printGameState(targetWord, guessedLetters, hangmanState)
 		input := readInput()
 		if len(input) != 1 {
 			fmt.Println("Invalid input. Please use letters only...")
 			continue
 		}
+
+		letter := rune(input[0])
+		if isCorrectGuess(targetWord, letter) {
+			guessedLetters[letter] = true
+		} else {
+			hangmanState++
+		}
+
+		printGameState(targetWord, guessedLetters, hangmanState)
 	}
+
+	// if the letter is a correct guess
+	//	guessed <- letter
+	// else
+	// 	hangmanState++
 
 	// Read user input
 	// * validate it (e.g. only letters)
@@ -76,7 +90,7 @@ func getWordGuessingProgress(targetWord string, guessedLetters map[rune]bool) st
 	for _, ch := range targetWord {
 		if ch == ' ' {
 			result += " "
-		} else if guessedLetters[unicode.ToLower(ch)] == true {
+		} else if guessedLetters[unicode.ToLower(ch)] {
 			result += fmt.Sprintf("%c", ch)
 		} else {
 			result += "_"
@@ -105,4 +119,8 @@ func readInput() string {
 	}
 
 	return strings.TrimSpace(input)
+}
+
+func isCorrectGuess(targetWord string, letter rune) bool {
+	return strings.ContainsRune(targetWord, letter)
 }
