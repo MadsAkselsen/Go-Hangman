@@ -23,6 +23,9 @@ var dictionary = []string{
 	"Programming",
 }
 
+// Letter already used
+// one free letter
+
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
@@ -57,9 +60,6 @@ func main() {
 	} else {
 		panic("invalid state. Gameis over and there is no winner")
 	}
-
-	// If word is guessed -> game over, you win
-	// If hangman is complete -> game over, you lose
 }
 
 func isGameOver(
